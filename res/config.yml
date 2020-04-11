@@ -1,0 +1,16 @@
+mysql:
+  host: "localhost"
+  user: "root"
+  password: ""
+  database: "serwermc"
+  table: "tokens"
+cooldown:
+  tokensCommand: 10
+messages:
+  permission: "&cNie masz uprawnien."
+  cooldown: "&cKomendy możesz użyć ponownie za &7{remaining} sekund&c."
+  checkPlayerOnly: "&cTylko gracze moga sprawdzac stan tokenow, uzyj argumentow &7add&c/&7remove&c/&7set&c."
+  unexpectedError: "&cWystapil nieoczekiwany blad."
+  tokensCheck: "&aTwoje tokeny: &7{tokens}&a."
+  tokensCheckPlayer:  "&aTokeny gracza &7{player}&a: &7{tokens}&a."
+  playerNotExist: "&cGracz &7{name} &cnie istnieje w bazie i nigdy nie gral na serwerze."
