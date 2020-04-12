@@ -37,7 +37,7 @@ class ConfigurationOfferMapper(
                 name = name,
                 lore = lore.split("\n").let {
                     if (appendLore.isNotBlank()) {
-                        return@let it.plus(appendLore.replace("{tokens}", "$cost"))
+                        return@let listOf(appendLore.replace("{tokens}", "$cost")).plus(it)
                     }
                     return@let it
                 }
