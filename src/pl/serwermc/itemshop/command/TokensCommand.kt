@@ -55,7 +55,58 @@ class TokensCommand(
             return
         }
 
+        if (args.size < 3) {
+            sender.message("usage")
+            return
+        }
 
+        val value = args[2].toIntOrNull()
+        if (value == null) {
+            sender.message("notValidInteger")
+            return
+        }
+
+        when (args[1].toLowerCase()) {
+            "set" -> {
+                plugin.runAsync(
+                    action = { tokens.setTokens(target, value) },
+                    syncCallback = { sender.message("tokensSet", "player" to target, "tokens" to value) },
+                    syncError = {
+                        when (it) {
+                            is Tokens.NegativeValueException -> sender.message("notValidInteger")
+                            else -> { sender.message("unexpectedError"); it.printStackTrace() }
+                        }
+                    }
+                )
+            }
+            "add" -> {
+                plugin.runAsync(
+                    action = { tokens.addTokens(target, value) },
+                    syncCallback = { sender.message("tokensAdded", "player" to target, "tokens" to value) },
+                    syncError = {
+                        when (it) {
+                            is Tokens.NegativeValueException -> sender.message("notValidInteger")
+                            is Tokens.MaxTokensValueException -> sender.message("tokensMax")
+                            else -> { sender.message("unexpectedError"); it.printStackTrace() }
+                        }
+                    }
+                )
+            }
+            "remove" -> {
+                plugin.runAsync(
+                    action = { tokens.removeTokens(target, value) },
+                    syncCallback = { sender.message("tokensRemoved", "player" to target, "tokens" to value) },
+                    syncError = {
+                        when (it) {
+                            is Tokens.NegativeValueException -> sender.message("notValidInteger")
+                            is Tokens.NotEnoughTokensException -> sender.message("tokensNotEnough", "player" to target)
+                            else -> { sender.message("unexpectedError"); it.printStackTrace() }
+                        }
+                    }
+                )
+            }
+            else -> sender.message("usage")
+        }
     }
 
 }

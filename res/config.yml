@@ -5,12 +5,70 @@ mysql:
   database: "serwermc"
   table: "tokens"
 cooldown:
-  tokensCommand: 10
+  tokensCommand: 10 #w sekundach
+  shopCommand: 15 #w sekundach
 messages:
+  playerOnly: "&cKomenda dostepna tylko dla graczy."
   permission: "&cNie masz uprawnien."
   cooldown: "&cKomendy możesz użyć ponownie za &7{remaining} sekund&c."
   checkPlayerOnly: "&cTylko gracze moga sprawdzac stan tokenow, uzyj argumentow &7add&c/&7remove&c/&7set&c."
   unexpectedError: "&cWystapil nieoczekiwany blad."
   tokensCheck: "&aTwoje tokeny: &7{tokens}&a."
   tokensCheckPlayer:  "&aTokeny gracza &7{player}&a: &7{tokens}&a."
+  tokensSet: "&aUstawiono tokeny gracza &7{player} &ana &7{tokens}&a."
+  tokensAdded: "&aDodano &7{tokens} &atokenow graczowi &7{player}&a."
+  tokensRemoved: "&aZabrano &7{tokens} &atokenow graczowi &7{player}&a."
+  tokensNotEnough: "&cGracz &7{player} &cnie ma wystarczajacej ilosci tokenow."
   playerNotExist: "&cGracz &7{name} &cnie istnieje w bazie i nigdy nie gral na serwerze."
+  notValidInteger: "&cPodana liczba musi byc dodatnia."
+  usage: "&cPoprawne uzycie: &7/tokeny <gracz> <set/add/remove> <ilosc>&c."
+  shopBroadcast: "&eGracz &7{player} &ezakupil &7{offer} &eza &7{tokens} &etokeny."
+  buyNotEnough: "&cNie masz wystarczajace ilosci tokenow."
+  buySuccess: "&aTransakcja zostala przeprowadzona pomyslnie."
+loreAppender: #dodawania czegos do opisu przedmiotow w gui
+  enabled: true
+  text: |-
+    &6&lCena: &7{tokens} tokeny
+gui:
+  rows: 6 #linijki, od 1 do 6
+  title: "&a&lItemShop"
+  headItem: #konifguracja głowy gracza jako itemu
+    guiSlot: 0
+    amount: 1
+    name: "&a&lTwoje tokeny: &7{tokens}"
+    lore: ""
+  loadingItem: #czasem moze sie zdarzyc ze laduje z bazy itemy np przez sekund, niby malo ale widac przez chwile puste gui, to temu zapobiega
+    material: white stained glass pane
+    amount: 1
+    name: "&f&lLadowanie oferty..."
+    lore: ""
+offers: #oferty
+  diamond: #byle co, nie moga sie powtarzac
+    name: "&a&lDiamenty &l&lx64" #nazwa wyswietlana przy powiadomieniu o zakupie
+    cost: 1000
+    commands: #komendy ktory maja sie wykonac
+      - "give {player} diamond 64"
+    guiSlot: 5
+    item: #konfiguracja oferty jako itemu w gui
+      material: diamond
+      amount: 1
+      name: "&a&lZakup diamenty."
+      lore: |-
+        &ePo zakupie otrzymujesz diamenty!
+        &7Jakas druga linijka.
+  suicide:
+    name: "&8&lSamobojstwo"
+    cost: 10
+    commands:
+      - "kill {player}"
+      - "say zabito {player}"
+    guiSlot: 39
+    item:
+      material: iron sword
+      amount: 1
+      name: "&8&lSamobojstwo"
+      lore: |-
+        &ePo zakupie umierasz!
+        &7Jakas druga linijka.
+        &3Jakas trzecia linijka.
+

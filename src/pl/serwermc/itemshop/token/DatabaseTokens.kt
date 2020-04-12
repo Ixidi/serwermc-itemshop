@@ -12,14 +12,10 @@ class DatabaseTokens(
     private val table: TokensTable
 ) : Tokens {
 
-    class NegativeValueException(val value: Int) : Exception("Value $value is not positive.")
-    class MaxTokensValueException(val value: Long) : Exception("$value is bigger than max tokens value ${Int.MAX_VALUE}.")
-    class NotEnoughTokensException(val value: Int) : Exception("$value is bigger than player's current tokens.")
-
     override fun hasAccount(name: String): Boolean = table.select { table.name eq name }.singleOrNull() != null
 
     override fun hasEnough(name: String, value: Int): Boolean {
-        if (value < 0) throw NegativeValueException(value)
+        if (value < 0) throw Tokens.NegativeValueException(value)
         if (value == 0) return true
 
         return getTokens(name) >= value
@@ -43,61 +39,67 @@ class DatabaseTokens(
     }
 
     override fun setTokens(name: String, value: Int) {
-        if (value < 0) throw NegativeValueException(value)
+        transaction(database) {
+            if (value < 0) throw Tokens.NegativeValueException(value)
 
-        val row = table.select { table.name eq name }.singleOrNull()
-        if (row != null) {
-            table.update({ table.name eq name }) {
+            val row = table.select { table.name eq name }.singleOrNull()
+            if (row != null) {
+                table.update({ table.name eq name }) {
+                    it[table.tokens] = value
+                }
+                return@transaction
+            }
+
+            table.insert {
+                it[table.name] = name
                 it[table.tokens] = value
             }
-            return
-        }
-
-        table.insert {
-            it[table.name] = name
-            it[table.tokens] = value
         }
     }
 
     override fun addTokens(name: String, value: Int) {
-        if (value < 0) throw NegativeValueException(value)
+        if (value < 0) throw Tokens.NegativeValueException(value)
         if (value == 0) return
 
-        val row = table.select { table.name eq name }.singleOrNull()
-        if (row != null) {
-            val tokens = row[table.tokens]
-            val newValue = tokens.toLong() + value.toLong()
-            if (newValue > Int.MAX_VALUE) throw MaxTokensValueException(newValue)
+        transaction(database) {
+            val row = table.select { table.name eq name }.singleOrNull()
+            if (row != null) {
+                val tokens = row[table.tokens]
+                val newValue = tokens.toLong() + value.toLong()
+                if (newValue > Int.MAX_VALUE) throw Tokens.MaxTokensValueException(newValue)
 
-            table.update({ table.name eq name }) {
-                it[table.tokens] = newValue.toInt()
+                table.update({ table.name eq name }) {
+                    it[table.tokens] = newValue.toInt()
+                }
+                return@transaction
             }
-            return
-        }
 
-        table.insert {
-            it[table.name] = name
-            it[table.tokens] = value
+            table.insert {
+                it[table.name] = name
+                it[table.tokens] = value
+            }
         }
     }
 
     override fun removeTokens(name: String, value: Int) {
-        if (value < 0) throw NegativeValueException(value)
+        if (value < 0) throw Tokens.NegativeValueException(value)
         if (value == 0) return
 
-        val row = table.select { table.name eq name }.singleOrNull()
-        if (row != null) {
-            val tokens = row[table.tokens]
-            val newValue = tokens - value
-            if (newValue < 0) throw NotEnoughTokensException(value)
+        transaction(database) {
+            val row = table.select { table.name eq name }.singleOrNull()
+            if (row != null) {
+                val tokens = row[table.tokens]
+                val newValue = tokens - value
+                if (newValue < 0) throw Tokens.NotEnoughTokensException(value)
 
-            table.update({ table.name eq name }) {
-                it[table.tokens] = newValue
+                table.update({ table.name eq name }) {
+                    it[table.tokens] = newValue
+                }
+            } else {
+                throw Tokens.NotEnoughTokensException(value)
             }
-            return
         }
 
-        throw NotEnoughTokensException(value)
     }
 
 }

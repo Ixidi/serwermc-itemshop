@@ -10,9 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.bukkit.plugin.Plugin
+import org.jetbrains.exposed.sql.exposedLogger
+import pl.serwermc.itemshop.shop.offer.ConfigurationOfferMapper
+import pl.serwermc.itemshop.shop.offer.Offers
+import pl.serwermc.itemshop.shop.offer.ConfigurationOffers
+import pl.serwermc.itemshop.shop.offer.Offer
 import pl.serwermc.itemshop.token.DatabaseTokens
 import pl.serwermc.itemshop.token.Tokens
 import pl.serwermc.itemshop.token.TokensTable
+import pl.serwermc.itemshop.util.Mapper
 import java.io.File
 
 val dataModule = module {
@@ -52,5 +58,12 @@ val dataModule = module {
     }
 
     single<Tokens> { DatabaseTokens(get(), get()) }
-
+    single<Mapper<Configuration.Offer, Offer>> {
+        ConfigurationOfferMapper(
+            get<Configuration>().loreAppender.run {
+                if (enabled) text else ""
+            }
+        )
+    }
+    single<Offers> { ConfigurationOffers(get(), get()) }
 }
